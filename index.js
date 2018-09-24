@@ -50,7 +50,7 @@ app.post('/contact', (req, res) => {
 app.get('/karyawandancab', (req, res) => {
     var sql1 = `select k.id as idKaryawan, k.Nama as NamaKaryawan, 
                 Umur, Jabatan, Gaji, Status, NoTelephone, 
-                c.Nama as NamaCabang 
+                c.Nama as NamaCabang, c.id as idCabang 
                 from karyawan k 
                 join cabang c
                 on k.CabangId = c.id;`;
@@ -70,7 +70,7 @@ app.get('/searchkaryawan', (req, res) => {
     const { namakaryawan, namacabang } = req.query;
     var sql = `select k.id as idKaryawan, k.Nama as NamaKaryawan, 
                 Umur, Jabatan, Gaji, Status, NoTelephone, 
-                c.Nama as NamaCabang 
+                c.Nama as NamaCabang, c.id as idCabang  
                 from karyawan k 
                 join cabang c
                 on k.CabangId = c.id
@@ -100,7 +100,7 @@ app.post('/karyawan', (req, res) => {
         console.log(results);
         var sql1 = `select k.id as idKaryawan, k.Nama as NamaKaryawan, 
                 Umur, Jabatan, Gaji, Status, NoTelephone, 
-                c.Nama as NamaCabang 
+                c.Nama as NamaCabang, c.id as idCabang  
                 from karyawan k 
                 join cabang c
                 on k.CabangId = c.id;`;
@@ -109,6 +109,36 @@ app.post('/karyawan', (req, res) => {
             
             res.send(results1);
         })
+    })
+});
+
+app.put('/karyawan/:idKar', (req, res) => {
+    const { nama, umur, jabatan, gaji, status, notelp, cabangid } = req.body;
+    var data = { 
+        Nama: nama,
+        Umur: umur,
+        Jabatan: jabatan,
+        Gaji: gaji,
+        Status: status,
+        NoTelephone: notelp,
+        CabangId: cabangid
+    };
+    var sql = `UPDATE karyawan SET ? WHERE id=${req.params.idKar}`;
+    conn.query(sql, data, (err, results) => {
+        if(err) res.send({err, status: 'Error'});
+        else {
+            var sql1 = `select k.id as idKaryawan, k.Nama as NamaKaryawan, 
+                Umur, Jabatan, Gaji, Status, NoTelephone, 
+                c.Nama as NamaCabang, c.id as idCabang  
+                from karyawan k 
+                join cabang c
+                on k.CabangId = c.id;`;
+            conn.query(sql1, (err1, results1) => {
+                if(err1) throw err1;
+                
+                res.send(results1);
+            })
+        }
     })
 });
 
